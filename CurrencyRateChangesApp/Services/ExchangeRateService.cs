@@ -2,25 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace CurrencyRateChangesApp.Services
 {
     public class ExchangeRateService
     {
-        public List<ExchangeRate> GetAllByDate(string date = "20141231")
-        {
-            string url = "http://www.lb.lt/webservices/ExchangeRates/ExchangeRates.asmx/getExchangeRatesByDate?Date=" + date;
+        private readonly string apiUrl = "http://www.lb.lt/webservices/ExchangeRates/ExchangeRates.asmx/getExchangeRatesByDate?Date=";
 
-            XElement loadedXml = XElement.Load(url);
-            IEnumerable<XElement> xmlElements = loadedXml.Elements();
+        public List<ExchangeRate> GetAllByDate(string date)
+        {
             List<ExchangeRate> exchangeRates = new List<ExchangeRate>();
 
-            foreach (var element in xmlElements)
+            var xmlData = GetXml(apiUrl + date);
+
+            foreach (var element in xmlData)
             {
                 exchangeRates.Add(mapXmlToExchangeRate(element));
             }
@@ -28,21 +25,33 @@ namespace CurrencyRateChangesApp.Services
             return exchangeRates;
         }
 
+        private IEnumerable<XElement> GetXml(string url)
+        {
+            XElement loadedXml = XElement.Load(url);
+
+            return loadedXml.Elements();
+        }
+
         private ExchangeRate mapXmlToExchangeRate(XElement element)
         {
             ExchangeRate exchangeRate = new ExchangeRate();
 
+            exchangeRate.Date = element.Element("date").Value;
+            exchangeRate.Currency = element.Element("currency").Value;
+            exchangeRate.Quantity = Convert.ToInt32(element.Element("quantity").Value);
+            exchangeRate.Rate = ConvertToDouble(element.Element("rate").Value);
+            exchangeRate.Unit = element.Element("unit").Value;
+
+            return exchangeRate;
+        }
+
+        private double ConvertToDouble(string number)
+        {
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
             provider.NumberGroupSeparator = ",";
 
-            exchangeRate.Date = element.Element("date").Value;
-            exchangeRate.Currency = element.Element("currency").Value;
-            exchangeRate.Quantity = Convert.ToInt32(element.Element("quantity").Value);
-            exchangeRate.Rate = Convert.ToDouble(element.Element("rate").Value, provider);
-            exchangeRate.Unit = element.Element("unit").Value;
-
-            return exchangeRate;
+            return Convert.ToDouble(number, provider);
         }
 
         public List<RateChange> GetRateChanges(string date)

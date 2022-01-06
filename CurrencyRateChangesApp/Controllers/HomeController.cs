@@ -12,7 +12,6 @@ namespace CurrencyRateChangesApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ExchangeRateService _exchangeRateService;
 
         public HomeController(ExchangeRateService exchangeRateService)
@@ -28,11 +27,6 @@ namespace CurrencyRateChangesApp.Controllers
         public IActionResult Changes(string date)
         {
             return View(_exchangeRateService.GetRateChanges(date));
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
