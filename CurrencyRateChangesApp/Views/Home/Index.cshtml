@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@using (Html.BeginForm("Changes", "Home", FormMethod.Post))
+{
+    <label for="date">Please pick a date:</label>
+    <input type="date" name="date" max="2014-12-31" />
+    <input type="submit" />
+}

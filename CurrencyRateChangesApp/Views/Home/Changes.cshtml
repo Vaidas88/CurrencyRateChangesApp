@@ -1,0 +1,8 @@
+﻿@model List<RateChange>
+
+<ul>
+    @foreach (var item in @Model)
+    {
+        <li>@item.Currency - @item.Change</li>
+    }
+</ul>
